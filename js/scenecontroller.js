@@ -155,8 +155,7 @@ SceneController.prototype.setupGeometry = function() {
     this.scene.add(sphere);
 
     var sphere2 = new THREE.Mesh( sphereGeometry, phongMaterialBlue );
-    sphere2.scale.multiplyScalar( 0.5 );
-    sphere2.position.set( 175, - 250 + 5, - 150 );
+    sphere2.position.set( 175, - 200 + 5, - 200 );
     // group.add( sphere2 );
     this.scene.add(sphere2);
 
@@ -167,8 +166,8 @@ SceneController.prototype.setupGeometry = function() {
     this.scene.add(box);
 
     var box2 = new THREE.Mesh( boxGeometry, phongMaterialGreen );
-    box2.scale.multiplyScalar( 0.75 );
-    box2.position.set( 75, - 250 + 5, - 75 );
+    box2.scale.multiplyScalar( 0.5 );
+    box2.position.set( 75, - 270 + 2.5, - 75 );
     box2.rotation.y = 0.5;
     this.scene.add( box2 );
 
@@ -233,13 +232,13 @@ var mouse = new THREE.Vector2();
 SceneController.prototype.onMouseMove = function( event )
 {
     mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-    mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+    mouse.y = - (( event.clientY / window.innerHeight ) * 2 - 1);
     console.log(mouse);
 };
 
 SceneController.prototype.render = function() {
     // document.addEventListener( 'mousemove', this.onMouseMove, false );
-    console.log(window.camera);
+    // console.log(this.camera);
     this.renderer.raytrace();
     this.renderer.render();
 }
