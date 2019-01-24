@@ -78,12 +78,12 @@ var RaytracingRenderer =function(scene, camera, workerObject)
         this.createImageData = createImageData;
     }
     this.workerCount = 15;
-    this.sectionWidth = 5;
+    this.sectionWidth = 6;
     this.sectionSize = {x: 64, y: 64};
 
     this.overwriteSize = true;
-    // this.sizeOverwrite = {x: 640, y: 480};
-    this.sizeOverwrite = {x: 120, y: 120};
+    this.sizeOverwrite = {x: 960, y: 720};
+    // this.sizeOverwrite = {x: 120, y: 120};
 
     this.clearColor = new THREE.Color(0x000000);
     this.domElement = this.canvas;
@@ -383,20 +383,22 @@ RaytracingRenderer.prototype.spawnRay = function (pixelColor,intersectionNormal,
     lightRaycaster.set(origin, lightDirection);
     var intersectsTowardsLight = lightRaycaster.intersectObjects( this.scene.children );
     if(intersectsTowardsLight.length === 0) {
+        //DIFFUSE
         var diffuseIntensity = (((1.0 * (intersectionNormal.dot(lightDirection))) + 1) / 2);
         pixelColor.r = (defaultPixelColor.r * diffuseIntensity);
         pixelColor.g = (defaultPixelColor.g * diffuseIntensity);
         pixelColor.b = (defaultPixelColor.b * diffuseIntensity);
 
-        // var r_s = 1.0 * Math.pow(direction.dot(lightDirection), this.phongMagnitude);
-        // if ( Math.pow(direction.dot(lightDirection), this.phongMagnitude) > 0 ) {
-        //     var L_spec = r_s * 1.0 * (Math.pow(direction.dot(lightDirection), this.phongMagnitude));
-        // } else {
-        //     var L_spec = 0;
-        // }
-        // pixelColor.r += (defaultPixelColor.r * L_spec);
-        // pixelColor.g += (defaultPixelColor.g * L_spec);
-        // pixelColor.b += (defaultPixelColor.b * L_spec);
+        //PHONG
+        var r_s = 0.5 * Math.pow(direction.dot(lightDirection), this.phongMagnitude);
+        if ( Math.pow(direction.dot(lightDirection), this.phongMagnitude) > 0 ) {
+            var L_spec = r_s * 1.0 * (Math.pow(direction.dot(lightDirection), this.phongMagnitude));
+        } else {
+            var L_spec = 0;
+        }
+        pixelColor.r += (1.0 * L_spec);
+        pixelColor.g += (1.0 * L_spec);
+        pixelColor.b += (1.0 * L_spec);
 
         // ToDo: compute color, if material is mirror, spawnRay again
         // this.calculateLightColor(pixelColor, origin, intersection, recursionDepth);
