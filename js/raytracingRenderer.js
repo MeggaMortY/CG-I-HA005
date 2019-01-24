@@ -55,7 +55,7 @@ var RaytracingRenderer =function(scene, camera, workerObject)
 
     this.rendering = false;
     this.superSamplingRate = 0;
-    this.maxRecursionDepth = 2;
+    this.maxRecursionDepth = 0;
 
     this.allLights = false;
     this.calcDiffuse = false;
@@ -336,28 +336,28 @@ RaytracingRenderer.prototype.renderPixel = function(pixelColor, pixPos, defaultC
     raycaster.setFromCamera(pixPos, this.camera);
     var intersects = raycaster.intersectObjects( this.scene.children );
     if (intersects.length !== 0) {
+        var defaultPixelColor = intersects[0].object.material.color;
         if (this.calcDiffuse === false && this.calcPhong === false) {
             pixelColor.set(intersects[0].object.material.color);
         } else {
-            // console.log(intersects[0].object.material.color.r / this.maxRecursionDepth,
-            //     intersects[0].object.material.color.g / this.maxRecursionDepth,
-            //     intersects[0].object.material.color.b / this.maxRecursionDepth);
-            pixelColor.r = (intersects[0].object.material.color.r / this.maxRecursionDepth);
-            pixelColor.g = (intersects[0].object.material.color.g / this.maxRecursionDepth);
-            pixelColor.b = (intersects[0].object.material.color.b / this.maxRecursionDepth);
-            console.log(pixelColor);
-            var origin = new THREE.Vector3();
-            origin.setFromMatrixPosition(intersects[0].object.matrixWorld);
+            var origin = intersects[0].point;
             var intersectionPoint = intersects[0].point;
             var pointToCameraVector = cameraPos.sub(intersectionPoint).normalize();
-            var intersectionNormal = intersects[0].face.normal;
-            direction = intersectionNormal.multiplyScalar(intersectionNormal.dot(pointToCameraVector)).multiplyScalar(2.0).sub(pointToCameraVector).normalize();
-            // console.log(origin);
-            // console.log(direction);
-            // console.log(pointToCameraVector);
-            // console.log(intersectionNormal);
+            if (intersects[0].object.geometry.type === "SphereGeometry") {
+                var sphereCenter = new THREE.Vector3();
+                intersects[0].object.getWorldPosition(sphereCenter);
+                var intersectionNormalWorld = origin.sub(sphereCenter).normalize();
+            } else if (intersects[0].object.geometry.type === "BoxGeometry") {
+                var intersectionNormal = intersects[0].face.normal;
+                var normalMatrix = new THREE.Matrix3().getNormalMatrix( intersects[0].object.matrixWorld );
+                var intersectionNormalWorld = intersectionNormal.clone().applyMatrix3( normalMatrix ).normalize();
+            } else {
+                console.log("Error, intersecting an object that's neither a sphere nor a box.");
+            }
+            direction = intersectionNormalWorld.multiplyScalar(intersectionNormalWorld.dot(pointToCameraVector)).multiplyScalar(2.0);
+            direction = direction.sub(pointToCameraVector).normalize();
             // Todo: compute çamera position and ray direction
-            // return this.spawnRay(pixelColor, origin, direction, this.maxRecursionDepth, Infinity, defaultColor);
+            return this.spawnRay(pixelColor, intersectionNormalWorld, origin, direction, this.maxRecursionDepth, Infinity, defaultColor, defaultPixelColor);
         }
     } else {
         pixelColor.set(defaultColor);
@@ -374,22 +374,31 @@ RaytracingRenderer.prototype.getIntersection = function(origin, direction, farPl
 
 //this method has most of the stuff of this exercise.
 //good coding style will ease this exercise significantly.
-RaytracingRenderer.prototype.spawnRay = function (pixelColor, origin, direction, recursionDepth, farPlane, defaultColor) {
+RaytracingRenderer.prototype.spawnRay = function (pixelColor,intersectionNormal, origin, direction, recursionDepth, farPlane, defaultColor, defaultPixelColor) {
+    var lightSource1 = new THREE.Vector3();
+    lightSource1.setFromMatrixPosition(this.lights[0].matrixWorld);
+    var lightDirection = lightSource1.sub(origin).normalize();
 
-    // calculate objects intersecting the picking ray
-    var intersects = this.getIntersection(origin, direction, farPlane);
+    var lightRaycaster = new THREE.Raycaster();
+    lightRaycaster.set(origin, lightDirection);
+    var intersectsTowardsLight = lightRaycaster.intersectObjects( this.scene.children );
+    if(intersectsTowardsLight.length === 0) {
+        var diffuseIntensity = (((1.0 * (intersectionNormal.dot(lightDirection))) + 1) / 2);
+        pixelColor.r = (defaultPixelColor.r * diffuseIntensity);
+        pixelColor.g = (defaultPixelColor.g * diffuseIntensity);
+        pixelColor.b = (defaultPixelColor.b * diffuseIntensity);
 
-    if(intersects != null) {
+        // var r_s = 1.0 * Math.pow(direction.dot(lightDirection), this.phongMagnitude);
+        // if ( Math.pow(direction.dot(lightDirection), this.phongMagnitude) > 0 ) {
+        //     var L_spec = r_s * 1.0 * (Math.pow(direction.dot(lightDirection), this.phongMagnitude));
+        // } else {
+        //     var L_spec = 0;
+        // }
+        // pixelColor.r += (defaultPixelColor.r * L_spec);
+        // pixelColor.g += (defaultPixelColor.g * L_spec);
+        // pixelColor.b += (defaultPixelColor.b * L_spec);
+
         // ToDo: compute color, if material is mirror, spawnRay again
-        var intersectionPoint = intersects[0].point;
-        var intersectionNormal = intersects[0].face.normal;
-        var lightSource1 = new THREE.Vector3();
-        lightSource1.setFromMatrixPosition(this.lights[0].matrixWorld);
-        var lightDirection = lightSource1 - intersectionPoint;
-        console.log(intersectionPoint);
-        console.log(lightSource1);
-        console.log(lightDirection);
-        // TODO: subtract "light point" - "intersection point" to get light direction vector, then normalize this vector for Phong
         // this.calculateLightColor(pixelColor, origin, intersection, recursionDepth);
         return true;
     } else {

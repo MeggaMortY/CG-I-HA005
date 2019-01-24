@@ -149,7 +149,7 @@ SceneController.prototype.setupGeometry = function() {
     var boxGeometry = new THREE.BoxGeometry( 100, 100, 100 );
 
     var sphere = new THREE.Mesh( sphereGeometry, phongMaterialYellow );
-    sphere.scale.multiplyScalar( 0.5 );
+    sphere.scale.multiplyScalar( 0.65 );
     sphere.position.set( - 50, - 250 + 5, - 50 );
     // group.add( sphere );
     this.scene.add(sphere);
@@ -164,12 +164,12 @@ SceneController.prototype.setupGeometry = function() {
     box.rotation.y = 0.5;
     // group.add( box );
     this.scene.add(box);
-
-    var box2 = new THREE.Mesh( boxGeometry, phongMaterialGreen );
-    box2.scale.multiplyScalar( 0.5 );
-    box2.position.set( 75, - 270 + 2.5, - 75 );
-    box2.rotation.y = 0.5;
-    this.scene.add( box2 );
+    //
+    // var box2 = new THREE.Mesh( boxGeometry, phongMaterialGreen );
+    // box2.scale.multiplyScalar( 0.5 );
+    // box2.position.set( 75, - 270 + 2.5, - 75 );
+    // box2.rotation.y = 0.5;
+    // this.scene.add( box2 );
 
     // bottom
     var plane = new THREE.Mesh( planeGeometry, phongMaterialBoxBottom );
@@ -237,8 +237,7 @@ SceneController.prototype.onMouseMove = function( event )
 };
 
 SceneController.prototype.render = function() {
-    // document.addEventListener( 'mousemove', this.onMouseMove, false );
-    // console.log(this.camera);
+    console.log(this.scene);
     this.renderer.raytrace();
     this.renderer.render();
 }
