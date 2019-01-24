@@ -166,8 +166,8 @@ SceneController.prototype.setupGeometry = function() {
     this.scene.add(box);
 
     var box2 = new THREE.Mesh( boxGeometry, phongMaterialGreen );
-    box2.scale.multiplyScalar( 0.5 );
-    box2.position.set( 75, - 270 + 2.5, - 75 );
+    box2.scale.multiplyScalar( 0.6 );
+    box2.position.set( 75, - 265 + 2.5, - 75 );
     box2.rotation.y = 0.5;
     this.scene.add( box2 );
 
@@ -204,17 +204,17 @@ SceneController.prototype.setupLight = function() {
     var intensity = 70000;
 
     var light = new THREE.PointLight( 0xffffff, intensity * 2 );
-    light.position.set( 0, - 170 , 300 );
+    light.position.set( 0, - 170 , 200 );
     light.physicalAttenuation = true;
     this.scene.add(light);
 
-    var light = new THREE.PointLight( 0xffaa55, intensity );
-    light.position.set( - 280, 100, 100 );
+    var light = new THREE.PointLight( 0xffe61a, intensity );
+    light.position.set( - 280, 250, 20 );
     light.physicalAttenuation = true;
     this.scene.add(light);
 
-    var light = new THREE.PointLight( 0x55aaff, intensity );
-    light.position.set( 280, 100, 100 );
+    var light = new THREE.PointLight( 0xffe61a, intensity );
+    light.position.set( 280, 100, 60 );
     light.physicalAttenuation = true;
     this.scene.add(light);
 
