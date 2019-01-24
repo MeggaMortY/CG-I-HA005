@@ -375,39 +375,94 @@ RaytracingRenderer.prototype.getIntersection = function(origin, direction, farPl
 //this method has most of the stuff of this exercise.
 //good coding style will ease this exercise significantly.
 RaytracingRenderer.prototype.spawnRay = function (pixelColor,intersectionNormal, origin, direction, recursionDepth, farPlane, defaultColor, defaultPixelColor) {
-    var lightSource1 = new THREE.Vector3();
-    lightSource1.setFromMatrixPosition(this.lights[0].matrixWorld);
-    var lightDirection = lightSource1.sub(origin).normalize();
+    var diffuseOne = 0.0;
+    var phongOne = 0.0;
+    var diffuseTwo = 0.0;
+    var phongTwo = 0.0;
+    var diffuseThree = 0.0;
+    var phongThree = 0.0;
 
+    var intersectsTowardsLightOne = this.intersectLightSource(origin, this.lights[0].matrixWorld);
+    var intersectsTowardsLightTwo = this.intersectLightSource(origin, this.lights[1].matrixWorld);
+    var intersectsTowardsLightThree = this.intersectLightSource(origin, this.lights[2].matrixWorld);
+    if (this.allLights === true) {
+        if(intersectsTowardsLightOne.length === 0) {
+            //DIFFUSE
+            diffuseOne = this.computeDiffuseLight(origin, pixelColor, defaultPixelColor, intersectionNormal, this.lights[0].matrixWorld);
+            //PHONG
+            phongOne = this.computePhongLight(origin, direction, pixelColor, this.lights[0].matrixWorld);
+        }
+        if(intersectsTowardsLightTwo.length === 0) {
+            //DIFFUSE
+            diffuseTwo = this.computeDiffuseLight(origin, pixelColor, defaultPixelColor, intersectionNormal, this.lights[1].matrixWorld);
+            //PHONG
+            phongTwo = this.computePhongLight(origin, direction, pixelColor, this.lights[1].matrixWorld);
+        }
+        if(intersectsTowardsLightThree.length === 0) {
+            //DIFFUSE
+            diffuseThree = this.computeDiffuseLight(origin, pixelColor, defaultPixelColor, intersectionNormal, this.lights[2].matrixWorld);
+            //PHONG
+            phongThree = this.computePhongLight(origin, direction, pixelColor, this.lights[2].matrixWorld);
+        }
+        if (intersectsTowardsLightOne.length === 0 || intersectsTowardsLightTwo.length === 0 || intersectsTowardsLightThree.length === 0) {
+            this.combineDiffuseIntensities(pixelColor, defaultPixelColor, diffuseOne, diffuseTwo, diffuseThree);
+            this.combinePhongIntensities(pixelColor, phongOne, phongTwo, phongThree);
+        } else {
+            pixelColor.set(defaultColor);
+            return false;
+        }
+    } else {
+        if(intersectsTowardsLightOne.length === 0) {
+            //DIFFUSE
+            diffuseOne = this.computeDiffuseLight(origin, pixelColor, defaultPixelColor, intersectionNormal, this.lights[0].matrixWorld);
+
+            pixelColor.r = (defaultPixelColor.r * diffuseOne);
+            pixelColor.g = (defaultPixelColor.g * diffuseOne);
+            pixelColor.b = (defaultPixelColor.b * diffuseOne);
+
+            //PHONG
+            phongOne = this.computePhongLight(origin, direction, pixelColor, this.lights[0].matrixWorld);
+            pixelColor.r += (1.0 * phongOne);
+            pixelColor.g += (0.9 * phongOne);
+            pixelColor.b += (0.1 * phongOne);
+            return true;
+        } else {
+            pixelColor.set(defaultColor);
+            return false;
+        }
+    }
+    // ToDo: compute color, if material is mirror, spawnRay again
+    // this.calculateLightColor(pixelColor, origin, intersection, recursionDepth);
+};
+
+RaytracingRenderer.prototype.computeLightDirection = function(origin, lightSource) {
+    var lightSourcePosition = new THREE.Vector3();
+    lightSourcePosition.setFromMatrixPosition(lightSource);
+    return lightSourcePosition.sub(origin).normalize();
+}
+
+RaytracingRenderer.prototype.intersectLightSource = function(origin, lightSource) {
+    var lightDirection = this.computeLightDirection(origin, lightSource);
     var lightRaycaster = new THREE.Raycaster();
     lightRaycaster.set(origin, lightDirection);
-    var intersectsTowardsLight = lightRaycaster.intersectObjects( this.scene.children );
-    if(intersectsTowardsLight.length === 0) {
-        //DIFFUSE
-        var diffuseIntensity = (((1.0 * (intersectionNormal.dot(lightDirection))) + 1) / 2);
-        pixelColor.r = (defaultPixelColor.r * diffuseIntensity);
-        pixelColor.g = (defaultPixelColor.g * diffuseIntensity);
-        pixelColor.b = (defaultPixelColor.b * diffuseIntensity);
+    return lightRaycaster.intersectObjects( this.scene.children );
+}
 
-        //PHONG
-        var r_s = 0.5 * Math.pow(direction.dot(lightDirection), this.phongMagnitude);
-        if ( Math.pow(direction.dot(lightDirection), this.phongMagnitude) > 0 ) {
-            var L_spec = r_s * 1.0 * (Math.pow(direction.dot(lightDirection), this.phongMagnitude));
-        } else {
-            var L_spec = 0;
-        }
-        pixelColor.r += (1.0 * L_spec);
-        pixelColor.g += (1.0 * L_spec);
-        pixelColor.b += (1.0 * L_spec);
+RaytracingRenderer.prototype.computeDiffuseLight = function(origin, pixelColor, defaultPixelColor, intersectionNormal, lightSource) {
+    var lightDirection = this.computeLightDirection(origin, lightSource);
+    return (((1.0 * (intersectionNormal.dot(lightDirection))) + 1) / 2);
+}
 
-        // ToDo: compute color, if material is mirror, spawnRay again
-        // this.calculateLightColor(pixelColor, origin, intersection, recursionDepth);
-        return true;
+RaytracingRenderer.prototype.computePhongLight = function(origin, direction, pixelColor, lightSource) {
+    var lightDirection = this.computeLightDirection(origin, lightSource);
+    var r_s = 0.5 * Math.pow(direction.dot(lightDirection), this.phongMagnitude);
+    if ( Math.pow(direction.dot(lightDirection), this.phongMagnitude) > 0 ) {
+        var L_spec = r_s * 1.0 * (Math.pow(direction.dot(lightDirection), this.phongMagnitude));
     } else {
-        pixelColor.set(defaultColor);
-        return false;
+        var L_spec = 0;
     }
-};
+    return L_spec;
+}
 
 RaytracingRenderer.prototype.calculateLightColor = function(pixelColor, origin, intersection, recursionDepth) {
 
@@ -416,3 +471,23 @@ RaytracingRenderer.prototype.calculateLightColor = function(pixelColor, origin, 
     // if not in the shadow, compute color based on phong model
 }
 
+RaytracingRenderer.prototype.combineDiffuseIntensities = function(pixelColor, defaultPixelColor, intensityOne, intensityTwo, intensityThree) {
+    var finalIntensity = (intensityOne + intensityTwo + intensityThree) / 3;
+    pixelColor.r = (defaultPixelColor.r * finalIntensity);
+    pixelColor.g = (defaultPixelColor.g * finalIntensity);
+    pixelColor.b = (defaultPixelColor.b * finalIntensity);
+    return true;
+}
+
+RaytracingRenderer.prototype.combinePhongIntensities = function(pixelColor, intensityOne, intensityTwo, intensityThree) {
+    var finalIntensity_r = (1.0 * intensityOne) + (1.0 * intensityTwo) + (1.0 * intensityThree);
+    var finalIntensity_g = (1.0 * intensityOne) + (0.9 * intensityTwo) + (0.9 * intensityThree);
+    var finalIntensity_b = (1.0 * intensityOne) + (0.1 * intensityTwo) + (0.1 * intensityThree);
+    pixelColor.r += finalIntensity_r;
+    pixelColor.g += finalIntensity_g;
+    pixelColor.b += finalIntensity_b;
+    pixelColor.r = Math.min(pixelColor.r, 1.0);
+    pixelColor.g = Math.min(pixelColor.g, 1.0);
+    pixelColor.b = Math.min(pixelColor.b, 1.0);
+    return true;
+}

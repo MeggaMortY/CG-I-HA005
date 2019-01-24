@@ -1,12 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="BookmarkManager">
-    <bookmark url="file://$PROJECT_DIR$/js/raytracingRenderer.js" line="381" />
-  </component>
   <component name="ChangeListManager">
     <list default="true" id="ec111f27-94f3-46ef-8792-6ab4feac495e" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/js/raytracingRenderer.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/raytracingRenderer.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/scenecontroller.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/scenecontroller.js" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
@@ -45,12 +41,12 @@
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
           <entry key="dummy" value="8" />
-          <entry key="js" value="4643" />
+          <entry key="js" value="6333" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="JavaScript" value="4643" />
+          <entry key="JavaScript" value="6333" />
           <entry key="PLAIN_TEXT" value="8" />
         </counts>
       </usages-collector>
@@ -85,8 +81,8 @@
           <file pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/js/raytracingRenderer.js">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="232">
-                  <caret line="80" column="25" selection-start-line="80" selection-start-column="25" selection-end-line="80" selection-end-column="25" />
+                <state relative-caret-position="413">
+                  <caret line="442" lean-forward="true" selection-start-line="442" selection-end-line="442" />
                 </state>
               </provider>
             </entry>
@@ -124,6 +120,8 @@
       <find>matrix</find>
       <find>cons</find>
       <find>this.scene</find>
+      <find>lightDirection</find>
+      <find>combineDiffuseIntensities</find>
     </findStrings>
     <replaceStrings>
       <replace>intersects</replace>
@@ -221,12 +219,12 @@
       <workItem from="1547895700802" duration="25440000" />
       <workItem from="1548272268582" duration="436000" />
       <workItem from="1548272744805" duration="6498000" />
-      <workItem from="1548348106484" duration="11889000" />
+      <workItem from="1548348106484" duration="16835000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="46092000" />
+    <option name="totallyTimeSpent" value="51038000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="33" width="2560" height="1004" extended-state="6" />
@@ -289,8 +287,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/js/raytracingRenderer.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="232">
-          <caret line="80" column="25" selection-start-line="80" selection-start-column="25" selection-end-line="80" selection-end-column="25" />
+        <state relative-caret-position="413">
+          <caret line="442" lean-forward="true" selection-start-line="442" selection-end-line="442" />
         </state>
       </provider>
     </entry>
