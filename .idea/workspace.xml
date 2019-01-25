@@ -2,6 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="ec111f27-94f3-46ef-8792-6ab4feac495e" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/raytracingRenderer.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/raytracingRenderer.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/js/scenecontroller.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/scenecontroller.js" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
@@ -17,23 +19,23 @@
     <session id="465748977">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
-          <entry key="project.closed" value="4" />
-          <entry key="project.open.time.0" value="3" />
+          <entry key="project.closed" value="6" />
+          <entry key="project.open.time.0" value="5" />
           <entry key="project.open.time.2" value="2" />
           <entry key="project.open.time.3" value="1" />
-          <entry key="project.opened" value="6" />
+          <entry key="project.opened" value="8" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
-          <entry key="html" value="1" />
+          <entry key="html" value="3" />
           <entry key="js" value="17" />
           <entry key="ts" value="1" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
-          <entry key="HTML" value="1" />
+          <entry key="HTML" value="3" />
           <entry key="JavaScript" value="17" />
           <entry key="TypeScript" value="1" />
         </counts>
@@ -41,12 +43,12 @@
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
           <entry key="dummy" value="8" />
-          <entry key="js" value="6354" />
+          <entry key="js" value="8323" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="JavaScript" value="6354" />
+          <entry key="JavaScript" value="8323" />
           <entry key="PLAIN_TEXT" value="8" />
         </counts>
       </usages-collector>
@@ -59,8 +61,8 @@
           <file pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/js/raytracingRenderer.js">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="6678">
-                  <caret line="374" column="20" selection-start-line="374" selection-start-column="20" selection-end-line="374" selection-end-column="20" />
+                <state relative-caret-position="6570">
+                  <caret line="383" column="20" selection-start-line="383" selection-start-column="20" selection-end-line="383" selection-end-column="20" />
                 </state>
               </provider>
             </entry>
@@ -68,8 +70,8 @@
           <file pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/js/scenecontroller.js">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="473">
-                  <caret line="211" column="38" selection-start-line="211" selection-start-column="38" selection-end-line="211" selection-end-column="38" />
+                <state relative-caret-position="365">
+                  <caret line="236" column="33" selection-start-line="236" selection-start-column="33" selection-end-line="236" selection-end-column="33" />
                 </state>
               </provider>
             </entry>
@@ -81,8 +83,8 @@
           <file pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/js/raytracingRenderer.js">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="2519">
-                  <caret line="442" lean-forward="true" selection-start-line="442" selection-end-line="442" />
+                <state relative-caret-position="378">
+                  <caret line="57" column="30" selection-start-line="57" selection-start-column="30" selection-end-line="57" selection-end-column="30" />
                 </state>
               </provider>
             </entry>
@@ -93,11 +95,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>mouse</find>
-      <find>fillImageWithNoisyStripes</find>
-      <find>scene</find>
-      <find>camera.</find>
-      <find>view</find>
       <find>look</find>
       <find>window</find>
       <find>allli</find>
@@ -122,10 +119,17 @@
       <find>this.scene</find>
       <find>lightDirection</find>
       <find>combineDiffuseIntensities</find>
+      <find>mirror</find>
+      <find>intersects[0]</find>
+      <find>defaultPixelColor</find>
+      <find>phongMaterialBlue</find>
+      <find>computeDiffuseLight</find>
+      <find>computePhongLight</find>
     </findStrings>
     <replaceStrings>
       <replace>intersects</replace>
       <replace>intersectingRay</replace>
+      <replace>intersection</replace>
     </replaceStrings>
   </component>
   <component name="Git.Settings">
@@ -219,12 +223,14 @@
       <workItem from="1547895700802" duration="25440000" />
       <workItem from="1548272268582" duration="436000" />
       <workItem from="1548272744805" duration="6498000" />
-      <workItem from="1548348106484" duration="18233000" />
+      <workItem from="1548348106484" duration="18296000" />
+      <workItem from="1548433911008" duration="353000" />
+      <workItem from="1548434289869" duration="13888000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="52436000" />
+    <option name="totallyTimeSpent" value="66740000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="33" width="2560" height="1004" extended-state="6" />
@@ -256,9 +262,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/index.html">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
     <entry file="file://$PROJECT_DIR$/js/htmlcontroller.js">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
@@ -278,17 +281,24 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/index.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="252">
+          <caret line="14" column="38" lean-forward="true" selection-start-line="14" selection-start-column="38" selection-end-line="14" selection-end-column="38" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/js/raytracingRenderer.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="6678">
-          <caret line="374" column="20" selection-start-line="374" selection-start-column="20" selection-end-line="374" selection-end-column="20" />
+        <state relative-caret-position="6570">
+          <caret line="383" column="20" selection-start-line="383" selection-start-column="20" selection-end-line="383" selection-end-column="20" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/js/scenecontroller.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="473">
-          <caret line="211" column="38" selection-start-line="211" selection-start-column="38" selection-end-line="211" selection-end-column="38" />
+        <state relative-caret-position="365">
+          <caret line="236" column="33" selection-start-line="236" selection-start-column="33" selection-end-line="236" selection-end-column="33" />
         </state>
       </provider>
     </entry>

@@ -55,13 +55,13 @@ var RaytracingRenderer =function(scene, camera, workerObject)
 
     this.rendering = false;
     this.superSamplingRate = 0;
-    this.maxRecursionDepth = 0;
+    this.maxRecursionDepth = 5;
 
-    this.allLights = false;
-    this.calcDiffuse = false;
-    this.calcPhong = false;
-    this.phongMagnitude = 10;
-    this.useMirrors = false;
+    this.allLights = true;
+    this.calcDiffuse = true;
+    this.calcPhong = true;
+    this.phongMagnitude = 25;
+    this.useMirrors = true;
 
     this.workerObject = workerObject;
     this.isWorker = (workerObject != undefined);
@@ -295,6 +295,7 @@ RaytracingRenderer.prototype.raytraceSection = function (startX, startY, width, 
     let defaultColor = new THREE.Color(0,0,0);
     let screenPos = new THREE.Vector2(0,0);
     let pixelColor = new THREE.Color(0,0,0);
+    var recursionCounter = 1;
 
     for(let y = startY; y < startY + height; y += 1) {
         for(let x = startX; x < startX + width; x += 1) {
@@ -304,7 +305,7 @@ RaytracingRenderer.prototype.raytraceSection = function (startX, startY, width, 
             {
                 let castX = x  / totalWidth * 2 - 1;
                 let castY = y / totalHeight * 2 - 1;
-                this.renderPixel(pixelColor, screenPos.set(castX, -castY), defaultColor);
+                this.renderPixel(pixelColor, recursionCounter, screenPos.set(castX, -castY), defaultColor);
             }
             else {
                 // Todo: super-sampling
@@ -328,41 +329,49 @@ RaytracingRenderer.prototype.raytraceSection = function (startX, startY, width, 
     }
 }
 
-RaytracingRenderer.prototype.renderPixel = function(pixelColor, pixPos, defaultColor) {
+RaytracingRenderer.prototype.renderPixel = function(pixelColor, recursionCounter, pixPos, defaultColor) {
     let cameraPos = new THREE.Vector3();
     cameraPos.setFromMatrixPosition(this.camera.matrixWorld);
-    var direction = new THREE.Vector3();
+
     var raycaster = new THREE.Raycaster();
     raycaster.setFromCamera(pixPos, this.camera);
+
     var intersects = raycaster.intersectObjects( this.scene.children );
     if (intersects.length !== 0) {
         var defaultPixelColor = intersects[0].object.material.color;
         if (this.calcDiffuse === false && this.calcPhong === false) {
             pixelColor.set(intersects[0].object.material.color);
         } else {
+
             var origin = intersects[0].point;
-            var intersectionPoint = intersects[0].point;
-            var pointToCameraVector = cameraPos.sub(intersectionPoint).normalize();
-            if (intersects[0].object.geometry.type === "SphereGeometry") {
-                var sphereCenter = new THREE.Vector3();
-                intersects[0].object.getWorldPosition(sphereCenter);
-                var intersectionNormalWorld = origin.sub(sphereCenter).normalize();
-            } else if (intersects[0].object.geometry.type === "BoxGeometry") {
-                var intersectionNormal = intersects[0].face.normal;
-                var normalMatrix = new THREE.Matrix3().getNormalMatrix( intersects[0].object.matrixWorld );
-                var intersectionNormalWorld = intersectionNormal.clone().applyMatrix3( normalMatrix ).normalize();
-            } else {
-                console.log("Error, intersecting an object that's neither a sphere nor a box.");
-            }
-            direction = intersectionNormalWorld.multiplyScalar(intersectionNormalWorld.dot(pointToCameraVector)).multiplyScalar(2.0);
-            direction = direction.sub(pointToCameraVector).normalize();
+            var direction_and_normalWorld = this.calculateDirection(origin, cameraPos, intersects[0]);
+            var direction = direction_and_normalWorld[0];
+            var intersectionNormalWorld = direction_and_normalWorld[1];
             // Todo: compute çamera position and ray direction
-            return this.spawnRay(pixelColor, intersectionNormalWorld, origin, direction, this.maxRecursionDepth, Infinity, defaultColor, defaultPixelColor);
+            return this.spawnRay(pixelColor, intersectionNormalWorld, recursionCounter, intersects[0], origin, direction, this.maxRecursionDepth, Infinity, defaultColor, defaultPixelColor);
         }
     } else {
         pixelColor.set(defaultColor);
     }
 
+}
+
+RaytracingRenderer.prototype.calculateDirection = function(origin, cameraPos, intersection) {
+    var pointToCameraVector = cameraPos.sub(origin).normalize();
+    if (intersection.object.geometry.type === "SphereGeometry") {
+        var sphereCenter = new THREE.Vector3();
+        intersection.object.getWorldPosition(sphereCenter);
+        var intersectionNormalWorld = origin.sub(sphereCenter).normalize();
+    } else if (intersection.object.geometry.type === "BoxGeometry") {
+        var intersectionNormal = intersection.face.normal;
+        var normalMatrix = new THREE.Matrix3().getNormalMatrix( intersection.object.matrixWorld );
+        var intersectionNormalWorld = intersectionNormal.clone().applyMatrix3( normalMatrix ).normalize();
+    } else {
+        console.log("Error, intersecting an object that's neither a sphere nor a box.");
+    }
+    var direction = intersectionNormalWorld.multiplyScalar(intersectionNormalWorld.dot(pointToCameraVector)).multiplyScalar(2.0);
+    direction = direction.sub(pointToCameraVector).normalize();
+    return [direction, intersectionNormalWorld];
 }
 
 RaytracingRenderer.prototype.getIntersection = function(origin, direction, farPlane) {
@@ -374,7 +383,25 @@ RaytracingRenderer.prototype.getIntersection = function(origin, direction, farPl
 
 //this method has most of the stuff of this exercise.
 //good coding style will ease this exercise significantly.
-RaytracingRenderer.prototype.spawnRay = function (pixelColor,intersectionNormal, origin, direction, recursionDepth, farPlane, defaultColor, defaultPixelColor) {
+RaytracingRenderer.prototype.spawnRay = function (pixelColor, intersectionNormal, recursionCounter, intersection, origin, direction, recursionDepth, farPlane, defaultColor, defaultPixelColor) {
+
+    if (intersection.object.material.mirror === true && this.useMirrors === true && (this.calcDiffuse || this.calcPhong) === true) {
+            if (recursionCounter <= this.maxRecursionDepth) {
+                var raycaster = new THREE.Raycaster();
+                raycaster.set(origin, direction);
+                var intersects = raycaster.intersectObjects(this.scene.children);
+                if (intersects.length !== 0) {
+                    recursionCounter += 1;
+                    var originRecursive = intersects[0].point;
+                    var direction_and_normalWorld = this.calculateDirection(originRecursive, origin, intersects[0]);
+                    var directionRecursive = direction_and_normalWorld[0];
+                    var intersectionNormalWorldRecursive = direction_and_normalWorld[1];
+                    this.spawnRay(pixelColor,intersectionNormalWorldRecursive, recursionCounter, intersects[0], originRecursive, directionRecursive, recursionDepth, farPlane, defaultColor, defaultPixelColor);
+                }
+            }
+
+    }
+
     var diffuseOne = 0.0;
     var phongOne = 0.0;
     var diffuseTwo = 0.0;
@@ -388,25 +415,26 @@ RaytracingRenderer.prototype.spawnRay = function (pixelColor,intersectionNormal,
     if (this.allLights === true) {
         if(intersectsTowardsLightOne.length === 0) {
             //DIFFUSE
-            diffuseOne = this.computeDiffuseLight(origin, pixelColor, defaultPixelColor, intersectionNormal, this.lights[0].matrixWorld);
+            diffuseOne = this.computeDiffuseLight(origin, intersectionNormal, this.lights[0].matrixWorld);
             //PHONG
-            phongOne = this.computePhongLight(origin, direction, pixelColor, this.lights[0].matrixWorld);
+            phongOne = this.computePhongLight(origin, direction, pixelColor, this.lights[0].matrixWorld, intersection.object.material.shininess);
         }
         if(intersectsTowardsLightTwo.length === 0) {
             //DIFFUSE
-            diffuseTwo = this.computeDiffuseLight(origin, pixelColor, defaultPixelColor, intersectionNormal, this.lights[1].matrixWorld);
+            diffuseTwo = this.computeDiffuseLight(origin, intersectionNormal, this.lights[1].matrixWorld);
             //PHONG
-            phongTwo = this.computePhongLight(origin, direction, pixelColor, this.lights[1].matrixWorld);
+            phongTwo = this.computePhongLight(origin, direction, pixelColor, this.lights[1].matrixWorld, intersection.object.material.shininess);
         }
         if(intersectsTowardsLightThree.length === 0) {
             //DIFFUSE
-            diffuseThree = this.computeDiffuseLight(origin, pixelColor, defaultPixelColor, intersectionNormal, this.lights[2].matrixWorld);
+            diffuseThree = this.computeDiffuseLight(origin, intersectionNormal, this.lights[2].matrixWorld);
             //PHONG
-            phongThree = this.computePhongLight(origin, direction, pixelColor, this.lights[2].matrixWorld);
+            phongThree = this.computePhongLight(origin, direction, pixelColor, this.lights[2].matrixWorld, intersection.object.material.shininess);
         }
         if (intersectsTowardsLightOne.length === 0 || intersectsTowardsLightTwo.length === 0 || intersectsTowardsLightThree.length === 0) {
-            this.combineDiffuseIntensities(pixelColor, defaultPixelColor, diffuseOne, diffuseTwo, diffuseThree);
-            this.combinePhongIntensities(pixelColor, phongOne, phongTwo, phongThree);
+            var tempRGB = this.combineDiffuseIntensities(pixelColor, defaultPixelColor, diffuseOne, diffuseTwo, diffuseThree);
+            this.combinePhongIntensities(pixelColor, tempRGB, phongOne, phongTwo, phongThree, recursionCounter);
+            return true;
         } else {
             pixelColor.set(defaultColor);
             return false;
@@ -414,17 +442,28 @@ RaytracingRenderer.prototype.spawnRay = function (pixelColor,intersectionNormal,
     } else {
         if(intersectsTowardsLightOne.length === 0) {
             //DIFFUSE
-            diffuseOne = this.computeDiffuseLight(origin, pixelColor, defaultPixelColor, intersectionNormal, this.lights[0].matrixWorld);
+            diffuseOne = this.computeDiffuseLight(origin, intersectionNormal, this.lights[0].matrixWorld);
 
-            pixelColor.r = (defaultPixelColor.r * diffuseOne);
-            pixelColor.g = (defaultPixelColor.g * diffuseOne);
-            pixelColor.b = (defaultPixelColor.b * diffuseOne);
+            var tempR = (defaultPixelColor.r * diffuseOne);
+            var tempG = (defaultPixelColor.g * diffuseOne);
+            var tempB = (defaultPixelColor.b * diffuseOne);
 
             //PHONG
-            phongOne = this.computePhongLight(origin, direction, pixelColor, this.lights[0].matrixWorld);
-            pixelColor.r += (1.0 * phongOne);
-            pixelColor.g += (0.9 * phongOne);
-            pixelColor.b += (0.1 * phongOne);
+            phongOne = this.computePhongLight(origin, direction, pixelColor, this.lights[0].matrixWorld, intersection.object.material.shininess);
+            tempR += (1.0 * phongOne);
+            tempG += (0.9 * phongOne);
+            tempB += (0.1 * phongOne);
+
+            //AVERAGE COLOR INCREMENT
+            pixelColor.r += tempR / recursionCounter;
+            pixelColor.g += tempG / recursionCounter;
+            pixelColor.b += tempB / recursionCounter;
+
+            //CEILING COLOR VALUES
+            pixelColor.r = Math.min(pixelColor.r, 1.0);
+            pixelColor.g = Math.min(pixelColor.g, 1.0);
+            pixelColor.b = Math.min(pixelColor.b, 1.0);
+
             return true;
         } else {
             pixelColor.set(defaultColor);
@@ -448,16 +487,16 @@ RaytracingRenderer.prototype.intersectLightSource = function(origin, lightSource
     return lightRaycaster.intersectObjects( this.scene.children );
 }
 
-RaytracingRenderer.prototype.computeDiffuseLight = function(origin, pixelColor, defaultPixelColor, intersectionNormal, lightSource) {
+RaytracingRenderer.prototype.computeDiffuseLight = function(origin, intersectionNormal, lightSource) {
     var lightDirection = this.computeLightDirection(origin, lightSource);
     return (((1.0 * (intersectionNormal.dot(lightDirection))) + 1) / 2);
 }
 
-RaytracingRenderer.prototype.computePhongLight = function(origin, direction, pixelColor, lightSource) {
+RaytracingRenderer.prototype.computePhongLight = function(origin, direction, pixelColor, lightSource, shininess) {
     var lightDirection = this.computeLightDirection(origin, lightSource);
-    var r_s = 0.5 * Math.pow(direction.dot(lightDirection), this.phongMagnitude);
+    var r_s = 0.5 * Math.pow(direction.dot(lightDirection), shininess);
     if ( Math.pow(direction.dot(lightDirection), this.phongMagnitude) > 0 ) {
-        var L_spec = r_s * 1.0 * (Math.pow(direction.dot(lightDirection), this.phongMagnitude));
+        var L_spec = this.phongMagnitude * r_s * 0.2 * ( ( (Math.pow(direction.dot(lightDirection), shininess)) + 1) / 2);
     } else {
         var L_spec = 0;
     }
@@ -473,19 +512,24 @@ RaytracingRenderer.prototype.calculateLightColor = function(pixelColor, origin, 
 
 RaytracingRenderer.prototype.combineDiffuseIntensities = function(pixelColor, defaultPixelColor, intensityOne, intensityTwo, intensityThree) {
     var finalIntensity = (intensityOne + intensityTwo + intensityThree) / 3;
-    pixelColor.r = (defaultPixelColor.r * finalIntensity);
-    pixelColor.g = (defaultPixelColor.g * finalIntensity);
-    pixelColor.b = (defaultPixelColor.b * finalIntensity);
-    return true;
+    var tempR = (defaultPixelColor.r * finalIntensity);
+    var tempG = (defaultPixelColor.g * finalIntensity);
+    var tempB = (defaultPixelColor.b * finalIntensity);
+    return [tempR, tempG, tempB];
 }
 
-RaytracingRenderer.prototype.combinePhongIntensities = function(pixelColor, intensityOne, intensityTwo, intensityThree) {
+RaytracingRenderer.prototype.combinePhongIntensities = function(pixelColor, tempRGB, intensityOne, intensityTwo, intensityThree, recursionCounter) {
     var finalIntensity_r = (1.0 * intensityOne) + (1.0 * intensityTwo) + (1.0 * intensityThree);
     var finalIntensity_g = (1.0 * intensityOne) + (0.9 * intensityTwo) + (0.9 * intensityThree);
     var finalIntensity_b = (1.0 * intensityOne) + (0.1 * intensityTwo) + (0.1 * intensityThree);
-    pixelColor.r += finalIntensity_r;
-    pixelColor.g += finalIntensity_g;
-    pixelColor.b += finalIntensity_b;
+    tempRGB[0] += finalIntensity_r;
+    tempRGB[1] += finalIntensity_g;
+    tempRGB[2] += finalIntensity_b;
+
+    pixelColor.r += tempRGB[0] / recursionCounter;
+    pixelColor.g += tempRGB[1] / recursionCounter;
+    pixelColor.b += tempRGB[2] / recursionCounter;
+
     pixelColor.r = Math.min(pixelColor.r, 1.0);
     pixelColor.g = Math.min(pixelColor.g, 1.0);
     pixelColor.b = Math.min(pixelColor.b, 1.0);
