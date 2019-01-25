@@ -43,19 +43,19 @@
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
           <entry key="dummy" value="8" />
-          <entry key="js" value="8323" />
+          <entry key="js" value="8447" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="JavaScript" value="8323" />
+          <entry key="JavaScript" value="8447" />
           <entry key="PLAIN_TEXT" value="8" />
         </counts>
       </usages-collector>
     </session>
   </component>
   <component name="FileEditorManager">
-    <splitter split-orientation="horizontal" split-proportion="0.31475273">
+    <splitter split-orientation="horizontal" split-proportion="0.35150215">
       <split-first>
         <leaf SIDE_TABS_SIZE_LIMIT_KEY="375">
           <file pinned="false" current-in-tab="false">
@@ -70,8 +70,8 @@
           <file pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/js/scenecontroller.js">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="365">
-                  <caret line="236" column="33" selection-start-line="236" selection-start-column="33" selection-end-line="236" selection-end-column="33" />
+                <state relative-caret-position="651">
+                  <caret line="274" column="26" selection-start-line="274" selection-start-column="26" selection-end-line="274" selection-end-column="26" />
                 </state>
               </provider>
             </entry>
@@ -83,8 +83,8 @@
           <file pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/js/raytracingRenderer.js">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="378">
-                  <caret line="57" column="30" selection-start-line="57" selection-start-column="30" selection-end-line="57" selection-end-column="30" />
+                <state relative-caret-position="576">
+                  <caret line="62" column="28" selection-start-line="62" selection-start-column="28" selection-end-line="62" selection-end-column="28" />
                 </state>
               </provider>
             </entry>
@@ -95,8 +95,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>look</find>
-      <find>window</find>
       <find>allli</find>
       <find>allLights</find>
       <find>calcdi</find>
@@ -125,11 +123,15 @@
       <find>phongMaterialBlue</find>
       <find>computeDiffuseLight</find>
       <find>computePhongLight</find>
+      <find>mirrorMaterialSmoothSilver</find>
+      <find>mirrorMaterialSmoothBluePurple</find>
     </findStrings>
     <replaceStrings>
       <replace>intersects</replace>
       <replace>intersectingRay</replace>
       <replace>intersection</replace>
+      <replace>mirrorMaterialSmoothDarkGrey</replace>
+      <replace>mirrorMaterialSmoothBluePurple</replace>
     </replaceStrings>
   </component>
   <component name="Git.Settings">
@@ -138,8 +140,8 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/js/raytracingRenderer.js" />
         <option value="$PROJECT_DIR$/js/scenecontroller.js" />
+        <option value="$PROJECT_DIR$/js/raytracingRenderer.js" />
       </list>
     </option>
   </component>
@@ -225,12 +227,12 @@
       <workItem from="1548272744805" duration="6498000" />
       <workItem from="1548348106484" duration="18296000" />
       <workItem from="1548433911008" duration="353000" />
-      <workItem from="1548434289869" duration="13888000" />
+      <workItem from="1548434289869" duration="16408000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="66740000" />
+    <option name="totallyTimeSpent" value="69260000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="33" width="2560" height="1004" extended-state="6" />
@@ -288,17 +290,17 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/js/raytracingRenderer.js">
+    <entry file="file://$PROJECT_DIR$/js/scenecontroller.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="6570">
-          <caret line="383" column="20" selection-start-line="383" selection-start-column="20" selection-end-line="383" selection-end-column="20" />
+        <state relative-caret-position="651">
+          <caret line="274" column="26" selection-start-line="274" selection-start-column="26" selection-end-line="274" selection-end-column="26" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/js/scenecontroller.js">
+    <entry file="file://$PROJECT_DIR$/js/raytracingRenderer.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="365">
-          <caret line="236" column="33" selection-start-line="236" selection-start-column="33" selection-end-line="236" selection-end-column="33" />
+        <state relative-caret-position="576">
+          <caret line="62" column="28" selection-start-line="62" selection-start-column="28" selection-end-line="62" selection-end-column="28" />
         </state>
       </provider>
     </entry>

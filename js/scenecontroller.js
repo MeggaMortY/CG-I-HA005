@@ -160,15 +160,25 @@ SceneController.prototype.setupGeometry = function() {
     mirrorMaterialSmoothRed.mirror = true;
     mirrorMaterialSmoothRed.reflectivity = 0.3;
 
-    var mirrorMaterialSmoothSilver = new THREE.MeshPhongMaterial( {
+    var mirrorMaterialSmoothDarkGrey = new THREE.MeshPhongMaterial( {
         color: 0x696969,
         specular: 0x222222,
         shininess: 10000,
         vertexColors: THREE.NoColors,
         flatShading: false
     } );
-    mirrorMaterialSmoothSilver.mirror = true;
-    mirrorMaterialSmoothSilver.reflectivity = 0.3;
+    mirrorMaterialSmoothDarkGrey.mirror = true;
+    mirrorMaterialSmoothDarkGrey.reflectivity = 0.3;
+
+    var mirrorMaterialSmoothBluePurple = new THREE.MeshPhongMaterial( {
+        color: 0x77b5fe,
+        specular: 0x222222,
+        shininess: 10000,
+        vertexColors: THREE.NoColors,
+        flatShading: false
+    } );
+    mirrorMaterialSmoothBluePurple.mirror = true;
+    mirrorMaterialSmoothBluePurple.reflectivity = 0.3;
 
     var group = new THREE.Group();
     this.scene.add( group );
@@ -201,6 +211,24 @@ SceneController.prototype.setupGeometry = function() {
     box2.rotation.y = 0.5;
     this.scene.add( box2 );
 
+    var smallBox1 = new THREE.Mesh( boxGeometry, mirrorMaterialSmoothBluePurple );
+    smallBox1.scale.multiplyScalar( 0.37 );
+    smallBox1.position.set( 200, - 275 + 2.5, -200 );
+    smallBox1.rotation.y = 0.5;
+    this.scene.add( smallBox1 );
+
+    var smallBox2 = new THREE.Mesh( boxGeometry, mirrorMaterialSmoothBluePurple );
+    smallBox2.scale.multiplyScalar( 0.37 );
+    smallBox2.position.set( 230, - 275 + 2.5, -160 );
+    smallBox2.rotation.y = 0.5;
+    this.scene.add( smallBox2 );
+
+    var smallBox3 = new THREE.Mesh( boxGeometry, mirrorMaterialSmoothBluePurple );
+    smallBox3.scale.multiplyScalar( 0.37 );
+    smallBox3.position.set( 215, - 230 + 2.5, -180 );
+    smallBox3.rotation.y = 0.5;
+    this.scene.add( smallBox3 );
+
     // bottom
     var plane = new THREE.Mesh( planeGeometry, mirrorMaterialSmooth );
     plane.position.set( 0, - 300 + 2.5, - 300 );
@@ -212,7 +240,7 @@ SceneController.prototype.setupGeometry = function() {
     this.scene.add( plane );
 
     // back
-    var plane = new THREE.Mesh( planeGeometry, mirrorMaterialSmoothSilver );
+    var plane = new THREE.Mesh( planeGeometry, mirrorMaterialSmoothDarkGrey );
     plane.rotation.x = 1.57;
     plane.position.set( 0, 0, - 300 );
     this.scene.add( plane );
@@ -234,7 +262,7 @@ SceneController.prototype.setupLight = function() {
     var intensity = 70000;
 
     var light = new THREE.PointLight( 0xffffff, intensity * 2 );
-    light.position.set( 0, 0 , 10 );
+    light.position.set( 15, -85 , 200 );
     light.physicalAttenuation = true;
     this.scene.add(light);
 
@@ -244,7 +272,7 @@ SceneController.prototype.setupLight = function() {
     this.scene.add(light);
 
     var light = new THREE.PointLight( 0xffe61a, intensity );
-    light.position.set( 280, 100, 60 );
+    light.position.set( 100, -280, 60 );
     light.physicalAttenuation = true;
     this.scene.add(light);
 

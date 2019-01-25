@@ -55,12 +55,12 @@ var RaytracingRenderer =function(scene, camera, workerObject)
 
     this.rendering = false;
     this.superSamplingRate = 0;
-    this.maxRecursionDepth = 5;
+    this.maxRecursionDepth = 4;
 
     this.allLights = true;
     this.calcDiffuse = true;
     this.calcPhong = true;
-    this.phongMagnitude = 25;
+    this.phongMagnitude = 19;
     this.useMirrors = true;
 
     this.workerObject = workerObject;
