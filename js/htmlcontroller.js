@@ -8,7 +8,7 @@ HtmlController.prototype.setup = function()
   //bind? --> https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind
 	window.addEventListener( 'resize', this.onWindowResize.bind(this), false );
 
-  document.addEventListener("keydown", this.onDocumentKeyDown.bind(this), false);
+  // document.addEventListener("keydown", this.onDocumentKeyDown.bind(this), false);
   document.addEventListener("mousedown", this.onDocumentMouseDown.bind(this), false);
   document.addEventListener("mousemove", this.onDocumentMouseMove.bind(this), false);
   document.addEventListener("mouseup", this.onDocumentMouseUp.bind(this), false);

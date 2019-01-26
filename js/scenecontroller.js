@@ -161,7 +161,7 @@ SceneController.prototype.setupGeometry = function() {
     mirrorMaterialSmoothRed.reflectivity = 0.3;
 
     var mirrorMaterialSmoothDarkGrey = new THREE.MeshPhongMaterial( {
-        color: 0x696969,
+        color: 0x585858,
         specular: 0x222222,
         shininess: 10000,
         vertexColors: THREE.NoColors,
@@ -208,7 +208,7 @@ SceneController.prototype.setupGeometry = function() {
     var box2 = new THREE.Mesh( boxGeometry, phongMaterialGreen );
     box2.scale.multiplyScalar( 0.6 );
     box2.position.set( 75, - 265 + 2.5, - 75 );
-    box2.rotation.y = 0.5;
+    // box2.rotation.y = 0.7;
     this.scene.add( box2 );
 
     var smallBox1 = new THREE.Mesh( boxGeometry, mirrorMaterialSmoothBluePurple );
@@ -228,6 +228,24 @@ SceneController.prototype.setupGeometry = function() {
     smallBox3.position.set( 215, - 230 + 2.5, -180 );
     smallBox3.rotation.y = 0.5;
     this.scene.add( smallBox3 );
+
+    var smallBox4 = new THREE.Mesh( boxGeometry, mirrorMaterialSmoothBluePurple );
+    smallBox4.scale.multiplyScalar( 0.37 );
+    smallBox4.position.set( 200, - 185 + 2.5, -200 );
+    smallBox4.rotation.y = 0.5;
+    this.scene.add( smallBox4 );
+
+    var smallBox5 = new THREE.Mesh( boxGeometry, mirrorMaterialSmoothBluePurple );
+    smallBox5.scale.multiplyScalar( 0.37 );
+    smallBox5.position.set( 230, - 185 + 2.5, -160 );
+    smallBox5.rotation.y = 0.5;
+    this.scene.add( smallBox5 );
+
+    var smallBox6 = new THREE.Mesh( boxGeometry, mirrorMaterialSmoothBluePurple );
+    smallBox6.scale.multiplyScalar( 0.37 );
+    smallBox6.position.set( 215, - 140 + 2.5, -180 );
+    smallBox6.rotation.y = 0.5;
+    this.scene.add( smallBox6 );
 
     // bottom
     var plane = new THREE.Mesh( planeGeometry, mirrorMaterialSmooth );
@@ -272,7 +290,7 @@ SceneController.prototype.setupLight = function() {
     this.scene.add(light);
 
     var light = new THREE.PointLight( 0xffe61a, intensity );
-    light.position.set( 100, -280, 60 );
+    light.position.set( 100, -280, 260 );
     light.physicalAttenuation = true;
     this.scene.add(light);
 

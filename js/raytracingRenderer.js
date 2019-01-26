@@ -55,7 +55,7 @@ var RaytracingRenderer =function(scene, camera, workerObject)
 
     this.rendering = false;
     this.superSamplingRate = 0;
-    this.maxRecursionDepth = 4;
+    this.maxRecursionDepth = 3;
 
     this.allLights = true;
     this.calcDiffuse = true;
@@ -309,6 +309,14 @@ RaytracingRenderer.prototype.raytraceSection = function (startX, startY, width, 
             }
             else {
                 // Todo: super-sampling
+                if (this.superSamplingRate === 1) {
+                    this.renderMSAAx1(x, y, pixelColor, recursionCounter, screenPos, defaultColor, totalWidth, totalHeight);
+                } else if (this.superSamplingRate === 2) {
+                    this.renderMSAAx2(x, y, pixelColor, recursionCounter, screenPos, defaultColor, totalWidth, totalHeight);
+                } else if (this.superSamplingRate === 3) {
+                    this.renderMSAAx3(x, y, pixelColor, recursionCounter, screenPos, defaultColor, totalWidth, totalHeight);
+                }
+
             }
             this.imageData.setColor(x - startX, y - startY, pixelColor);
         }
@@ -342,13 +350,17 @@ RaytracingRenderer.prototype.renderPixel = function(pixelColor, recursionCounter
         if (this.calcDiffuse === false && this.calcPhong === false) {
             pixelColor.set(intersects[0].object.material.color);
         } else {
-
             var origin = intersects[0].point;
             var direction_and_normalWorld = this.calculateDirection(origin, cameraPos, intersects[0]);
             var direction = direction_and_normalWorld[0];
             var intersectionNormalWorld = direction_and_normalWorld[1];
-            // Todo: compute çamera position and ray direction
-            return this.spawnRay(pixelColor, intersectionNormalWorld, recursionCounter, intersects[0], origin, direction, this.maxRecursionDepth, Infinity, defaultColor, defaultPixelColor);
+            this.spawnRay(pixelColor, intersectionNormalWorld, recursionCounter, intersects[0], origin, direction, this.maxRecursionDepth, Infinity, defaultColor, defaultPixelColor);
+            //CEILING COLOR VALUES
+            var finalColor = this.getMaxNumber(pixelColor.r, pixelColor.g, pixelColor.b);
+            pixelColor.r = finalColor[0];
+            pixelColor.g = finalColor[1];
+            pixelColor.b = finalColor[2];
+            return true;
         }
     } else {
         pixelColor.set(defaultColor);
@@ -396,7 +408,8 @@ RaytracingRenderer.prototype.spawnRay = function (pixelColor, intersectionNormal
                     var direction_and_normalWorld = this.calculateDirection(originRecursive, origin, intersects[0]);
                     var directionRecursive = direction_and_normalWorld[0];
                     var intersectionNormalWorldRecursive = direction_and_normalWorld[1];
-                    this.spawnRay(pixelColor,intersectionNormalWorldRecursive, recursionCounter, intersects[0], originRecursive, directionRecursive, recursionDepth, farPlane, defaultColor, defaultPixelColor);
+                    var defaultPixelColorRecursive = intersects[0].object.material.color;
+                    this.spawnRay(pixelColor,intersectionNormalWorldRecursive, recursionCounter, intersects[0], originRecursive, directionRecursive, recursionDepth, farPlane, defaultColor, defaultPixelColorRecursive);
                 }
             }
 
@@ -414,22 +427,34 @@ RaytracingRenderer.prototype.spawnRay = function (pixelColor, intersectionNormal
     var intersectsTowardsLightThree = this.intersectLightSource(origin, this.lights[2].matrixWorld);
     if (this.allLights === true) {
         if(intersectsTowardsLightOne.length === 0) {
-            //DIFFUSE
-            diffuseOne = this.computeDiffuseLight(origin, intersectionNormal, this.lights[0].matrixWorld);
-            //PHONG
-            phongOne = this.computePhongLight(origin, direction, pixelColor, this.lights[0].matrixWorld, intersection.object.material.shininess);
+            if (this.calcDiffuse === true) {
+                //DIFFUSE
+                diffuseOne = this.computeDiffuseLight(origin, intersectionNormal, this.lights[0].matrixWorld);
+            }
+            if (this.calcPhong === true) {
+                //PHONG
+                phongOne = this.computePhongLight(origin, direction, pixelColor, this.lights[0].matrixWorld, intersection.object.material.shininess);
+            }
         }
         if(intersectsTowardsLightTwo.length === 0) {
-            //DIFFUSE
-            diffuseTwo = this.computeDiffuseLight(origin, intersectionNormal, this.lights[1].matrixWorld);
-            //PHONG
-            phongTwo = this.computePhongLight(origin, direction, pixelColor, this.lights[1].matrixWorld, intersection.object.material.shininess);
+            if (this.calcDiffuse === true) {
+                //DIFFUSE
+                diffuseTwo = this.computeDiffuseLight(origin, intersectionNormal, this.lights[1].matrixWorld);
+            }
+            if (this.calcPhong === true) {
+                //PHONG
+                phongTwo = this.computePhongLight(origin, direction, pixelColor, this.lights[1].matrixWorld, intersection.object.material.shininess);
+            }
         }
         if(intersectsTowardsLightThree.length === 0) {
-            //DIFFUSE
-            diffuseThree = this.computeDiffuseLight(origin, intersectionNormal, this.lights[2].matrixWorld);
-            //PHONG
-            phongThree = this.computePhongLight(origin, direction, pixelColor, this.lights[2].matrixWorld, intersection.object.material.shininess);
+            if (this.calcDiffuse === true) {
+                //DIFFUSE
+                diffuseThree = this.computeDiffuseLight(origin, intersectionNormal, this.lights[2].matrixWorld);
+            }
+            if (this.calcPhong === true) {
+                //PHONG
+                phongThree = this.computePhongLight(origin, direction, pixelColor, this.lights[2].matrixWorld, intersection.object.material.shininess);
+            }
         }
         if (intersectsTowardsLightOne.length === 0 || intersectsTowardsLightTwo.length === 0 || intersectsTowardsLightThree.length === 0) {
             var tempRGB = this.combineDiffuseIntensities(pixelColor, defaultPixelColor, diffuseOne, diffuseTwo, diffuseThree);
@@ -441,29 +466,29 @@ RaytracingRenderer.prototype.spawnRay = function (pixelColor, intersectionNormal
         }
     } else {
         if(intersectsTowardsLightOne.length === 0) {
-            //DIFFUSE
-            diffuseOne = this.computeDiffuseLight(origin, intersectionNormal, this.lights[0].matrixWorld);
+            var tempR = 0.0;
+            var tempG = 0.0;
+            var tempB = 0.0;
+            if (this.calcDiffuse === true) {
+                //DIFFUSE
+                diffuseOne = this.computeDiffuseLight(origin, intersectionNormal, this.lights[0].matrixWorld);
 
-            var tempR = (defaultPixelColor.r * diffuseOne);
-            var tempG = (defaultPixelColor.g * diffuseOne);
-            var tempB = (defaultPixelColor.b * diffuseOne);
-
-            //PHONG
-            phongOne = this.computePhongLight(origin, direction, pixelColor, this.lights[0].matrixWorld, intersection.object.material.shininess);
-            tempR += (1.0 * phongOne);
-            tempG += (0.9 * phongOne);
-            tempB += (0.1 * phongOne);
+                tempR = (defaultPixelColor.r * diffuseOne);
+                tempG = (defaultPixelColor.g * diffuseOne);
+                tempB = (defaultPixelColor.b * diffuseOne);
+            }
+            if (this.calcPhong === true) {
+                //PHONG
+                phongOne = this.computePhongLight(origin, direction, pixelColor, this.lights[0].matrixWorld, intersection.object.material.shininess);
+                tempR += (1.0 * phongOne);
+                tempG += (0.9 * phongOne);
+                tempB += (0.1 * phongOne);
+            }
 
             //AVERAGE COLOR INCREMENT
             pixelColor.r += tempR / recursionCounter;
             pixelColor.g += tempG / recursionCounter;
             pixelColor.b += tempB / recursionCounter;
-
-            //CEILING COLOR VALUES
-            pixelColor.r = Math.min(pixelColor.r, 1.0);
-            pixelColor.g = Math.min(pixelColor.g, 1.0);
-            pixelColor.b = Math.min(pixelColor.b, 1.0);
-
             return true;
         } else {
             pixelColor.set(defaultColor);
@@ -529,9 +554,93 @@ RaytracingRenderer.prototype.combinePhongIntensities = function(pixelColor, temp
     pixelColor.r += tempRGB[0] / recursionCounter;
     pixelColor.g += tempRGB[1] / recursionCounter;
     pixelColor.b += tempRGB[2] / recursionCounter;
-
-    pixelColor.r = Math.min(pixelColor.r, 1.0);
-    pixelColor.g = Math.min(pixelColor.g, 1.0);
-    pixelColor.b = Math.min(pixelColor.b, 1.0);
     return true;
+}
+
+RaytracingRenderer.prototype.getMaxNumber = function(numberOne, numberTwo, numberThree) {
+    var temp = Math.max(numberOne, numberTwo);
+    var maxNumber = Math.max(temp, numberThree);
+    if (maxNumber > 1.0) {
+        numberOne = numberOne / maxNumber;
+        numberTwo = numberTwo / maxNumber;
+        numberThree = numberThree / maxNumber;
+    }
+    return [numberOne, numberTwo, numberThree];
+}
+
+RaytracingRenderer.prototype.renderMSAAx1 = function(x, y, pixelColor, recursionCounter, screenPos, defaultColor, totalWidth, totalHeight) {
+    let castXone = (2 * x / (totalWidth * 2)) * 2 - 1;
+    let castYone = (2 * y / (totalHeight * 2)) * 2 - 1;
+    let msaaColorOne = new THREE.Color(0,0,0);
+    msaaColorOne.setRGB(0.0,0.0,0.0);
+    this.renderPixel(msaaColorOne, recursionCounter, screenPos.set(castXone, -castYone), defaultColor);
+
+    let castXtwo = ((2 * x + 1) / (totalWidth *2)) * 2 - 1;
+    let castYtwo = ((2 * y + 1) / (totalHeight *2)) * 2 - 1;
+    let msaaColorTwo = new THREE.Color(0,0,0);
+    msaaColorTwo.setRGB(0.0,0.0,0.0);
+    this.renderPixel(msaaColorTwo, recursionCounter, screenPos.set(castXtwo, -castYtwo), defaultColor);
+
+    var finalMSAAColor = [(msaaColorOne.r + msaaColorTwo.r) / 2, (msaaColorOne.g + msaaColorTwo.g) / 2, (msaaColorOne.b + msaaColorTwo.b) / 2];
+    pixelColor.r = finalMSAAColor[0];
+    pixelColor.g = finalMSAAColor[1];
+    pixelColor.b = finalMSAAColor[2];
+    return true;
+}
+
+RaytracingRenderer.prototype.renderMSAAx2 = function(x, y, pixelColor, recursionCounter, screenPos, defaultColor, totalWidth, totalHeight) {
+    let castXone = (3 * x / (totalWidth * 3)) * 2 - 1;
+    let castYone = (3 * y / (totalHeight * 3)) * 2 - 1;
+    let msaaColorOne = new THREE.Color(0,0,0);
+    msaaColorOne.setRGB(0.0,0.0,0.0);
+    this.renderPixel(msaaColorOne, recursionCounter, screenPos.set(castXone, -castYone), defaultColor);
+
+    let castXtwo = ((3 * x + 1) / (totalWidth *3)) * 2 - 1;
+    let castYtwo = ((3 * y + 1) / (totalHeight *3)) * 2 - 1;
+    let msaaColorTwo = new THREE.Color(0,0,0);
+    msaaColorTwo.setRGB(0.0,0.0,0.0);
+    this.renderPixel(msaaColorTwo, recursionCounter, screenPos.set(castXtwo, -castYtwo), defaultColor);
+
+    let castXThree = ((3 * x + 2) / (totalWidth *3)) * 2 - 1;
+    let castYThree = ((3 * y + 2) / (totalHeight *3)) * 2 - 1;
+    let msaaColorThree = new THREE.Color(0,0,0);
+    msaaColorThree.setRGB(0.0,0.0,0.0);
+    this.renderPixel(msaaColorThree, recursionCounter, screenPos.set(castXThree, -castYThree), defaultColor);
+
+    var finalMSAAColor = [(msaaColorOne.r + msaaColorTwo.r + msaaColorThree.r) / 3, (msaaColorOne.g + msaaColorTwo.g + msaaColorThree.g) / 3, (msaaColorOne.b + msaaColorTwo.b + msaaColorThree.b) / 3];
+    pixelColor.r = finalMSAAColor[0];
+    pixelColor.g = finalMSAAColor[1];
+    pixelColor.b = finalMSAAColor[2];
+    return true;
+}
+
+RaytracingRenderer.prototype.renderMSAAx3 = function(x, y, pixelColor, recursionCounter, screenPos, defaultColor, totalWidth, totalHeight) {
+    let castXone = (4 * x / (totalWidth * 4)) * 2 - 1;
+    let castYone = (4 * y / (totalHeight * 4)) * 2 - 1;
+    let msaaColorOne = new THREE.Color(0,0,0);
+    msaaColorOne.setRGB(0.0,0.0,0.0);
+    this.renderPixel(msaaColorOne, recursionCounter, screenPos.set(castXone, -castYone), defaultColor);
+
+    let castXtwo = ((4 * x + 1) / (totalWidth *4)) * 2 - 1;
+    let castYtwo = ((4 * y + 1) / (totalHeight *4)) * 2 - 1;
+    let msaaColorTwo = new THREE.Color(0,0,0);
+    msaaColorTwo.setRGB(0.0,0.0,0.0);
+    this.renderPixel(msaaColorTwo, recursionCounter, screenPos.set(castXtwo, -castYtwo), defaultColor);
+
+    let castXThree = ((4 * x + 2) / (totalWidth *4)) * 2 - 1;
+    let castYThree = ((4 * y + 2) / (totalHeight *4)) * 2 - 1;
+    let msaaColorThree = new THREE.Color(0,0,0);
+    msaaColorThree.setRGB(0.0,0.0,0.0);
+    this.renderPixel(msaaColorThree, recursionCounter, screenPos.set(castXThree, -castYThree), defaultColor);
+
+    let castXFour = ((4 * x + 3) / (totalWidth *4)) * 2 - 1;
+    let castYFour = ((4 * y + 3) / (totalHeight *4)) * 2 - 1;
+    let msaaColorFour = new THREE.Color(0,0,0);
+    msaaColorFour.setRGB(0.0,0.0,0.0);
+    this.renderPixel(msaaColorFour, recursionCounter, screenPos.set(castXFour, -castYFour), defaultColor);
+
+    var finalMSAAColor = [(msaaColorOne.r + msaaColorTwo.r + msaaColorThree.r + msaaColorFour.r) / 4, (msaaColorOne.g + msaaColorTwo.g + msaaColorThree.g + msaaColorFour.g) / 4, (msaaColorOne.b + msaaColorTwo.b + msaaColorThree.b + msaaColorFour.b) / 4];
+    pixelColor.r = finalMSAAColor[0];
+    pixelColor.g = finalMSAAColor[1];
+    pixelColor.b = finalMSAAColor[2];
 }
