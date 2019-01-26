@@ -2,9 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="ec111f27-94f3-46ef-8792-6ab4feac495e" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/js/raytracingRenderer.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/raytracingRenderer.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/scenecontroller.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/scenecontroller.js" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
@@ -92,8 +90,8 @@
           <file pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/js/raytracingRenderer.js">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="523">
-                  <caret line="545" column="12" lean-forward="true" selection-start-line="545" selection-start-column="12" selection-end-line="545" selection-end-column="12" />
+                <state relative-caret-position="437">
+                  <caret line="544" column="40" lean-forward="true" selection-start-line="544" selection-start-column="40" selection-end-line="544" selection-end-column="40" />
                 </state>
               </provider>
             </entry>
@@ -104,7 +102,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>defaultColor</find>
       <find>direction</find>
       <find>intersection</find>
       <find>render</find>
@@ -130,10 +127,11 @@
       <find>origin =</find>
       <find>computeLightAttenuation</find>
       <find>computeDiffuseLight</find>
-      <find>computePhongLight</find>
       <find>lights</find>
       <find>this.lights</find>
       <find>.target</find>
+      <find>computePhongLight</find>
+      <find>pointToCameraVector</find>
     </findStrings>
     <replaceStrings>
       <replace>intersects</replace>
@@ -238,12 +236,12 @@
       <workItem from="1548348106484" duration="18296000" />
       <workItem from="1548433911008" duration="353000" />
       <workItem from="1548434289869" duration="16672000" />
-      <workItem from="1548488717413" duration="18783000" />
+      <workItem from="1548488717413" duration="20321000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="88307000" />
+    <option name="totallyTimeSpent" value="89845000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="33" width="2560" height="1004" extended-state="6" />
@@ -314,8 +312,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/js/raytracingRenderer.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="523">
-          <caret line="545" column="12" lean-forward="true" selection-start-line="545" selection-start-column="12" selection-end-line="545" selection-end-column="12" />
+        <state relative-caret-position="437">
+          <caret line="544" column="40" lean-forward="true" selection-start-line="544" selection-start-column="40" selection-end-line="544" selection-end-column="40" />
         </state>
       </provider>
     </entry>

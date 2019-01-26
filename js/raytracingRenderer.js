@@ -541,7 +541,7 @@ RaytracingRenderer.prototype.computeDiffuseLight = function(origin, intersection
 RaytracingRenderer.prototype.computePhongLight = function(origin, direction, pixelColor, lightSource, shininess, lightObject) {
     var lightDirection = this.computeLightDirection(origin, lightSource);
     var r_s = 0.4 * Math.pow(direction.dot(lightDirection), shininess);
-    if ( Math.pow(direction.dot(lightDirection), this.phongMagnitude) > 0 ) {
+    if ( direction.dot(lightDirection) > 0 ) {
         var L_spec = this.phongMagnitude * r_s * 0.39 * ( ( (Math.pow(direction.dot(lightDirection), shininess)) + 1) / 2);
     } else {
         var L_spec = 0;
