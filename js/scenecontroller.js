@@ -279,7 +279,7 @@ SceneController.prototype.setupGeometry = function() {
 SceneController.prototype.setupLight = function() {
     var intensity = 70000;
 
-    var light = new THREE.PointLight( 0xffffff, intensity * 2 );
+    var light = new THREE.PointLight( 0xffffff, intensity * 1.3 );
     light.position.set( 15, -85 , 200 );
     light.physicalAttenuation = true;
     this.scene.add(light);
@@ -289,8 +289,13 @@ SceneController.prototype.setupLight = function() {
     light.physicalAttenuation = true;
     this.scene.add(light);
 
-    var light = new THREE.PointLight( 0xffe61a, intensity );
-    light.position.set( 100, -280, 260 );
+    var light = new THREE.PointLight( 0xffe61a, intensity * 1.75);
+    light.position.set( 90, -275, 260 );
+    light.physicalAttenuation = true;
+    this.scene.add(light);
+
+    var light = new THREE.SpotLight( 0xffffff, intensity * 1.8);
+    light.position.set( 280, 250 , 2 );
     light.physicalAttenuation = true;
     this.scene.add(light);
 

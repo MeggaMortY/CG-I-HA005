@@ -55,12 +55,12 @@ var RaytracingRenderer =function(scene, camera, workerObject)
 
     this.rendering = false;
     this.superSamplingRate = 0;
-    this.maxRecursionDepth = 3;
+    this.maxRecursionDepth = 4;
 
     this.allLights = true;
     this.calcDiffuse = true;
     this.calcPhong = true;
-    this.phongMagnitude = 19;
+    this.phongMagnitude = 31;
     this.useMirrors = true;
 
     this.workerObject = workerObject;
@@ -107,7 +107,7 @@ var RaytracingRenderer =function(scene, camera, workerObject)
     this.lights = [];
     for(var c = 0; c < this.scene.children.length; c++)
     {
-        if(this.scene.children[c].isPointLight)
+        if(this.scene.children[c].isPointLight || this.scene.children[c].isSpotLight)
             this.lights.push(this.scene.children[c]);
     }
 }
@@ -421,44 +421,57 @@ RaytracingRenderer.prototype.spawnRay = function (pixelColor, intersectionNormal
     var phongTwo = 0.0;
     var diffuseThree = 0.0;
     var phongThree = 0.0;
+    var diffuseFour = 0.0;
+    var phongFour = 0.0;
 
     var intersectsTowardsLightOne = this.intersectLightSource(origin, this.lights[0].matrixWorld);
     var intersectsTowardsLightTwo = this.intersectLightSource(origin, this.lights[1].matrixWorld);
     var intersectsTowardsLightThree = this.intersectLightSource(origin, this.lights[2].matrixWorld);
+    var intersectsTowardsLightFour = this.intersectLightSource(origin, this.lights[3].matrixWorld);
     if (this.allLights === true) {
         if(intersectsTowardsLightOne.length === 0) {
             if (this.calcDiffuse === true) {
                 //DIFFUSE
-                diffuseOne = this.computeDiffuseLight(origin, intersectionNormal, this.lights[0].matrixWorld);
+                diffuseOne = this.computeDiffuseLight(origin, intersectionNormal, this.lights[0].matrixWorld, this.lights[0]);
             }
             if (this.calcPhong === true) {
                 //PHONG
-                phongOne = this.computePhongLight(origin, direction, pixelColor, this.lights[0].matrixWorld, intersection.object.material.shininess);
+                phongOne = this.computePhongLight(origin, direction, pixelColor, this.lights[0].matrixWorld, intersection.object.material.shininess, this.lights[0]);
             }
         }
         if(intersectsTowardsLightTwo.length === 0) {
             if (this.calcDiffuse === true) {
                 //DIFFUSE
-                diffuseTwo = this.computeDiffuseLight(origin, intersectionNormal, this.lights[1].matrixWorld);
+                diffuseTwo = this.computeDiffuseLight(origin, intersectionNormal, this.lights[1].matrixWorld, this.lights[1]);
             }
             if (this.calcPhong === true) {
                 //PHONG
-                phongTwo = this.computePhongLight(origin, direction, pixelColor, this.lights[1].matrixWorld, intersection.object.material.shininess);
+                phongTwo = this.computePhongLight(origin, direction, pixelColor, this.lights[1].matrixWorld, intersection.object.material.shininess, this.lights[1]);
             }
         }
         if(intersectsTowardsLightThree.length === 0) {
             if (this.calcDiffuse === true) {
                 //DIFFUSE
-                diffuseThree = this.computeDiffuseLight(origin, intersectionNormal, this.lights[2].matrixWorld);
+                diffuseThree = this.computeDiffuseLight(origin, intersectionNormal, this.lights[2].matrixWorld, this.lights[2]);
             }
             if (this.calcPhong === true) {
                 //PHONG
-                phongThree = this.computePhongLight(origin, direction, pixelColor, this.lights[2].matrixWorld, intersection.object.material.shininess);
+                phongThree = this.computePhongLight(origin, direction, pixelColor, this.lights[2].matrixWorld, intersection.object.material.shininess, this.lights[2]);
             }
         }
-        if (intersectsTowardsLightOne.length === 0 || intersectsTowardsLightTwo.length === 0 || intersectsTowardsLightThree.length === 0) {
-            var tempRGB = this.combineDiffuseIntensities(pixelColor, defaultPixelColor, diffuseOne, diffuseTwo, diffuseThree);
-            this.combinePhongIntensities(pixelColor, tempRGB, phongOne, phongTwo, phongThree, recursionCounter);
+        if(intersectsTowardsLightFour.length === 0) {
+            if (this.calcDiffuse === true) {
+                //DIFFUSE
+                diffuseFour = this.computeDiffuseLight(origin, intersectionNormal, this.lights[3].matrixWorld, this.lights[3]);
+            }
+            if (this.calcPhong === true) {
+                //PHONG
+                phongFour = this.computePhongLight(origin, direction, pixelColor, this.lights[3].matrixWorld, intersection.object.material.shininess, this.lights[3]);
+            }
+        }
+        if (intersectsTowardsLightOne.length === 0 || intersectsTowardsLightTwo.length === 0 || intersectsTowardsLightThree.length === 0 || intersectsTowardsLightFour.length === 0) {
+            var tempRGB = this.combineDiffuseIntensities(pixelColor, defaultPixelColor, diffuseOne, diffuseTwo, diffuseThree, diffuseFour);
+            this.combinePhongIntensities(pixelColor, tempRGB, phongOne, phongTwo, phongThree, phongFour, recursionCounter);
             return true;
         } else {
             pixelColor.set(defaultColor);
@@ -471,7 +484,7 @@ RaytracingRenderer.prototype.spawnRay = function (pixelColor, intersectionNormal
             var tempB = 0.0;
             if (this.calcDiffuse === true) {
                 //DIFFUSE
-                diffuseOne = this.computeDiffuseLight(origin, intersectionNormal, this.lights[0].matrixWorld);
+                diffuseOne = this.computeDiffuseLight(origin, intersectionNormal, this.lights[0].matrixWorld, this.lights[0]);
 
                 tempR = (defaultPixelColor.r * diffuseOne);
                 tempG = (defaultPixelColor.g * diffuseOne);
@@ -479,7 +492,7 @@ RaytracingRenderer.prototype.spawnRay = function (pixelColor, intersectionNormal
             }
             if (this.calcPhong === true) {
                 //PHONG
-                phongOne = this.computePhongLight(origin, direction, pixelColor, this.lights[0].matrixWorld, intersection.object.material.shininess);
+                phongOne = this.computePhongLight(origin, direction, pixelColor, this.lights[0].matrixWorld, intersection.object.material.shininess, this.lights[0]);
                 tempR += (1.0 * phongOne);
                 tempG += (0.9 * phongOne);
                 tempB += (0.1 * phongOne);
@@ -495,8 +508,6 @@ RaytracingRenderer.prototype.spawnRay = function (pixelColor, intersectionNormal
             return false;
         }
     }
-    // ToDo: compute color, if material is mirror, spawnRay again
-    // this.calculateLightColor(pixelColor, origin, intersection, recursionDepth);
 };
 
 RaytracingRenderer.prototype.computeLightDirection = function(origin, lightSource) {
@@ -512,41 +523,45 @@ RaytracingRenderer.prototype.intersectLightSource = function(origin, lightSource
     return lightRaycaster.intersectObjects( this.scene.children );
 }
 
-RaytracingRenderer.prototype.computeDiffuseLight = function(origin, intersectionNormal, lightSource) {
-    var lightDirection = this.computeLightDirection(origin, lightSource);
-    return (((1.0 * (intersectionNormal.dot(lightDirection))) + 1) / 2);
+RaytracingRenderer.prototype.computeLightAttenuation = function(origin, lightSource) {
+    var lightSourceWorldCoordinates = new THREE.Vector3();
+    lightSourceWorldCoordinates.setFromMatrixPosition(lightSource);
+    var originToLightDistance = new THREE.Vector3();
+    originToLightDistance.copy(lightSourceWorldCoordinates.sub(origin));
+    var lightAttenuationFactor = 1/Math.pow(originToLightDistance.length(), 2);
+    return lightAttenuationFactor;
 }
 
-RaytracingRenderer.prototype.computePhongLight = function(origin, direction, pixelColor, lightSource, shininess) {
+RaytracingRenderer.prototype.computeDiffuseLight = function(origin, intersectionNormal, lightSource, lightObject) {
     var lightDirection = this.computeLightDirection(origin, lightSource);
-    var r_s = 0.5 * Math.pow(direction.dot(lightDirection), shininess);
+    var attenuationFactor = this.computeLightAttenuation(origin, lightSource);
+    return (attenuationFactor * lightObject.intensity * (((0.95 * (intersectionNormal.dot(lightDirection))) + 1) / 2));
+}
+
+RaytracingRenderer.prototype.computePhongLight = function(origin, direction, pixelColor, lightSource, shininess, lightObject) {
+    var lightDirection = this.computeLightDirection(origin, lightSource);
+    var r_s = 0.4 * Math.pow(direction.dot(lightDirection), shininess);
     if ( Math.pow(direction.dot(lightDirection), this.phongMagnitude) > 0 ) {
-        var L_spec = this.phongMagnitude * r_s * 0.2 * ( ( (Math.pow(direction.dot(lightDirection), shininess)) + 1) / 2);
+        var L_spec = this.phongMagnitude * r_s * 0.39 * ( ( (Math.pow(direction.dot(lightDirection), shininess)) + 1) / 2);
     } else {
         var L_spec = 0;
     }
-    return L_spec;
+    var attenuationFactor = this.computeLightAttenuation(origin, lightSource);
+    return (attenuationFactor * lightObject.intensity * L_spec);
 }
 
-RaytracingRenderer.prototype.calculateLightColor = function(pixelColor, origin, intersection, recursionDepth) {
-
-    // ToDo: compute pixel color
-    // notes: need normal vector, light direction (e.g. lightDir.setFromMatrixPosition(light.matrixWorld);)
-    // if not in the shadow, compute color based on phong model
-}
-
-RaytracingRenderer.prototype.combineDiffuseIntensities = function(pixelColor, defaultPixelColor, intensityOne, intensityTwo, intensityThree) {
-    var finalIntensity = (intensityOne + intensityTwo + intensityThree) / 3;
+RaytracingRenderer.prototype.combineDiffuseIntensities = function(pixelColor, defaultPixelColor, intensityOne, intensityTwo, intensityThree, intensityFour) {
+    var finalIntensity = (intensityOne + intensityTwo + intensityThree + intensityFour) / 4;
     var tempR = (defaultPixelColor.r * finalIntensity);
     var tempG = (defaultPixelColor.g * finalIntensity);
     var tempB = (defaultPixelColor.b * finalIntensity);
     return [tempR, tempG, tempB];
 }
 
-RaytracingRenderer.prototype.combinePhongIntensities = function(pixelColor, tempRGB, intensityOne, intensityTwo, intensityThree, recursionCounter) {
-    var finalIntensity_r = (1.0 * intensityOne) + (1.0 * intensityTwo) + (1.0 * intensityThree);
-    var finalIntensity_g = (1.0 * intensityOne) + (0.9 * intensityTwo) + (0.9 * intensityThree);
-    var finalIntensity_b = (1.0 * intensityOne) + (0.1 * intensityTwo) + (0.1 * intensityThree);
+RaytracingRenderer.prototype.combinePhongIntensities = function(pixelColor, tempRGB, intensityOne, intensityTwo, intensityThree, intensityFour, recursionCounter) {
+    var finalIntensity_r = (1.0 * intensityOne) + (1.0 * intensityTwo) + (1.0 * intensityThree) + (1.0 * intensityFour);
+    var finalIntensity_g = (1.0 * intensityOne) + (0.9 * intensityTwo) + (0.9 * intensityThree) + (1.0 * intensityFour);
+    var finalIntensity_b = (1.0 * intensityOne) + (0.1 * intensityTwo) + (0.1 * intensityThree) + (1.0 * intensityFour);
     tempRGB[0] += finalIntensity_r;
     tempRGB[1] += finalIntensity_g;
     tempRGB[2] += finalIntensity_b;
