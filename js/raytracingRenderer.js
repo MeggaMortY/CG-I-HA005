@@ -60,7 +60,7 @@ var RaytracingRenderer =function(scene, camera, workerObject)
     this.allLights = true;
     this.calcDiffuse = true;
     this.calcPhong = true;
-    this.phongMagnitude = 31;
+    this.phongMagnitude = 50;
     this.useMirrors = true;
 
     this.workerObject = workerObject;
