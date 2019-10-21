@@ -2,4 +2,4 @@ A simple ray-tracer written in Javascript + THREE.JS. Once loaded into a browser
 as well as bounce count and subpixel sampling. When started it renders a pre-defined Cornell Box:
 
 ## Example output
-![](ex5_5.png)
+<img src="ex5_5.png" width="630" />
